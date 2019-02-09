@@ -21,8 +21,9 @@ pipeline:
 +     changeset:
 +       includes: [ **/**.go ]
 
-+changeset:
-+  includes: [ **/**.go ]
++trigger:
++  changeset:
++    includes: [ **/**.go ]
 ```
 
 This plugin is compatible with the [Drone Config Plugin Pipeline](https://github.com/microadam/drone-config-plugin-pipeline)
