@@ -25,6 +25,8 @@ pipeline:
 +  includes: [ **/**.go ]
 ```
 
+This plugin is compatible with the [Drone Config Plugin Pipeline](https://github.com/microadam/drone-config-plugin-pipeline)
+
 ## Installation
 
 PLEASE NOTE: At the moment it supports only github.com installations.
