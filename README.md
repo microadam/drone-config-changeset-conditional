@@ -47,6 +47,7 @@ docker run \
   -e PLUGIN_SECRET=558f3eacbfd5928157cbfe34823ab921 \
   -e GITHUB_TOKEN=GITHUB8168c98304b \
   --name drone-changeset-conditional \
+  -detach=true \
   microadam/drone-config-plugin-changeset-conditional
 ```
 
