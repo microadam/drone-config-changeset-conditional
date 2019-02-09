@@ -1,0 +1,19 @@
+{
+  "name": "drone-config-changeset-conditional",
+  "version": "1.0.0",
+  "description": "",
+  "main": "plugin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "github4": "^1.1.1",
+    "globule": "^1.2.1",
+    "http-signature": "^1.2.0",
+    "yamljs": "^0.3.0"
+  }
+}
