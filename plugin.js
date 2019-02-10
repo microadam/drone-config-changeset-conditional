@@ -45,24 +45,27 @@ app.post('/', bodyParser.json(), async (req, res) => {
     return res.sendStatus(500)
   }
 
-  if (parsedYaml.trigger && parsedYaml.trigger.changeset && parsedYaml.trigger.changeset.includes) {
-    const requiredFiles = parsedYaml.trigger.changeset.includes
-    const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
-    console.log('Matched files for pipeline:', matchedFiles.length, 'Allowed matches:', requiredFiles)
-    if (!matchedFiles.length) return res.json({ Data: nullYaml })
-  }
+  const finalYamlDocs = parsedYaml.map(py => {
+    if (py.kind !== 'pipeline') return yaml.stringify(py)
+    if (py.trigger && py.trigger.changeset && py.trigger.changeset.includes) {
+      const requiredFiles = py.trigger.changeset.includes
+      const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
+      console.log('Matched files for pipeline:', matchedFiles.length, 'Allowed matches:', requiredFiles)
+      if (!matchedFiles.length) return res.json({ Data: nullYaml })
+    }
 
-  const trimmedSteps = parsedYaml.steps.filter(s => {
-    if (!s.when || !s.when.changeset || !s.when.changeset.includes) return true
-    const requiredFiles = s.when.changeset.includes
-    const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
-    console.log('Matched files for step:', matchedFiles.length, 'Allowed matches:', requiredFiles)
-    return matchedFiles.length
+    const trimmedSteps = py.steps.filter(s => {
+      if (!s.when || !s.when.changeset || !s.when.changeset.includes) return true
+      const requiredFiles = s.when.changeset.includes
+      const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
+      console.log('Matched files for step:', matchedFiles.length, 'Allowed matches:', requiredFiles)
+      return matchedFiles.length
+    })
+
+    return trimmedSteps.length ? yaml.stringify({ ...py, steps: trimmedSteps }) : nullYaml
   })
 
-  const returnYaml = trimmedSteps.length ? yaml.stringify({ ...parsedYaml, steps: trimmedSteps }) : nullYaml
-
-  res.json({ Data: returnYaml })
+  res.json({ Data: finalYamlDocs.join('\n---\n') })
 })
 
 app.listen(3000)
