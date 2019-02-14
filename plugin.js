@@ -51,7 +51,10 @@ app.post('/', bodyParser.json(), async (req, res) => {
       const requiredFiles = py.trigger.changeset.includes
       const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
       console.log('Matched files for pipeline:', matchedFiles.length, 'Allowed matches:', requiredFiles)
-      if (!matchedFiles.length) return res.json({ Data: nullYaml })
+      if (!matchedFiles.length) {
+        py.trigger = { event: { exclude: ['*'] } }
+        return yaml.stringify(py)
+      }
     }
 
     const trimmedSteps = py.steps.filter(s => {
