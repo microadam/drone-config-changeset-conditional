@@ -3,27 +3,22 @@
 This implements the ability to have steps / pipelines only execute when certain files have changed, using the following additional YAML syntax:
 
 ```
-pipeline:
-  frontend:
-    image: node
-    commands:
-      - cd app
-      - npm run test
-+   when:
-+     changeset:
-+       includes: [ **/**.js, **/**.css, **/**.html ]
-  backend:
-    image: golang
-    commands:
-      - go build
-      - go test -v
-+   when:
-+     changeset:
-+       includes: [ **/**.go ]
+kind: pipeline
+name: default
 
-+trigger:
-+  changeset:
-+    includes: [ **/**.go ]
+steps:
+- name: frontend
+   image: node
+   commands:
+     - cd app
+     - npm run test
+   when:
+      changeset:
+        includes: [ **/**.js, **/**.css, **/**.html ]
+
+trigger:
+  changeset:
+    includes: [ **/**.go ]
 ```
 
 This plugin is compatible with the [Drone Config Plugin Pipeline](https://github.com/microadam/drone-config-plugin-pipeline)
