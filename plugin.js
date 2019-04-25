@@ -45,7 +45,7 @@ app.post('/', bodyParser.json(), async (req, res) => {
     return res.sendStatus(500)
   }
 
-  const finalYamlDocs = parsedYaml.map(py => {
+  const finalYamlDocs = parsedYaml.map((py, index) => {
     if (py.kind !== 'pipeline') return yaml.stringify(py)
     if (py.trigger && py.trigger.changeset && py.trigger.changeset.includes) {
       const requiredFiles = py.trigger.changeset.includes
@@ -57,7 +57,7 @@ app.post('/', bodyParser.json(), async (req, res) => {
       }
     }
 
-    const trimmedSteps = py.steps.filter((s, index) => {
+    const trimmedSteps = py.steps.filter(s => {
       if (!s.when || !s.when.changeset || !s.when.changeset.includes) return true
       const requiredFiles = s.when.changeset.includes
       const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
