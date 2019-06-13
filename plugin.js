@@ -16,7 +16,7 @@ gh.authenticate({ type: 'oauth', token: githubToken })
 const determineFilesChanged = createFilesChangedDeterminer(gh)
 const getParsedYaml = createParsedYamlRetriever(gh)
 
-const nullYaml = 'kind: pipeline\nname: default\ntrigger:\n  event:\n    exclude: [ "*" ]'
+const nullYaml = index => `kind: pipeline\nname: default_${index}\ntrigger:\n  event:\n    exclude: [ "*" ]`
 
 const app = express()
 app.post('/', bodyParser.json(), async (req, res) => {
@@ -45,7 +45,7 @@ app.post('/', bodyParser.json(), async (req, res) => {
     return res.sendStatus(500)
   }
 
-  const finalYamlDocs = parsedYaml.map(py => {
+  const finalYamlDocs = parsedYaml.map((py, index) => {
     if (py.kind !== 'pipeline') return yaml.stringify(py)
     if (py.trigger && py.trigger.changeset && py.trigger.changeset.includes) {
       const requiredFiles = py.trigger.changeset.includes
@@ -65,7 +65,7 @@ app.post('/', bodyParser.json(), async (req, res) => {
       return matchedFiles.length
     })
 
-    return trimmedSteps.length ? yaml.stringify({ ...py, steps: trimmedSteps }) : nullYaml
+    return trimmedSteps.length ? yaml.stringify({ ...py, steps: trimmedSteps }) : nullYaml(index)
   })
 
   res.json({ Data: finalYamlDocs.join('\n---\n') })
