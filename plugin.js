@@ -19,7 +19,7 @@ const getParsedYaml = createParsedYamlRetriever(gh)
 const nullYaml = index => `kind: pipeline\nname: default_${index}\ntrigger:\n  event:\n    exclude: [ "*" ]`
 
 const app = express()
-app.post('/', bodyParser.json(), async (req, res) => {
+app.post('/', bodyParser.json({limit: '50mb'}), async (req, res) => {
   console.log('Processing...')
   if (!req.headers.signature) return res.status(400).send('Missing signature')
   if (!isValidSig(req, sharedKey)) return res.status(400).send('Invalid signature')
