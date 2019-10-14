@@ -47,11 +47,12 @@ app.post('/', bodyParser.json({limit: '50mb'}), async (req, res) => {
 
   try {
     const finalYamlDocs = parsedYaml.map((py, index) => {
-      if (py.kind !== 'pipeline') {
-        let error = new Error("noPipelineFound");
+      if (py.kind == undefined) {
+        let error = new Error("Missing kind");
         error.code = 404;
         throw error;
       }
+      if (py.kind !== 'pipeline') return yaml.stringify(py)
       if (py.trigger && py.trigger.changeset && py.trigger.changeset.includes) {
         const requiredFiles = py.trigger.changeset.includes
         const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
