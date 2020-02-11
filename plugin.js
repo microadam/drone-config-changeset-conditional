@@ -11,7 +11,7 @@ const githubToken = process.env.GITHUB_TOKEN
 const sharedKey = process.env.PLUGIN_SECRET
 
 const gh = new GhApi({ version: '3.0.0' })
-gh.authenticate({ type: 'oauth', token: githubToken })
+gh.authenticate({ type: 'token', token: githubToken })
 
 const determineFilesChanged = createFilesChangedDeterminer(gh)
 const getParsedYaml = createParsedYamlRetriever(gh)
