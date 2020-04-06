@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bitbucket": "^2.0.3",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "github4": "^1.1.1",

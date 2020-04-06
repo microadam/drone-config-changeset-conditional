@@ -1,20 +1,35 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const GhApi = require('github4')
 const yaml = require('yaml')
 const glob = require('globule')
-const createFilesChangedDeterminer = require('./lib/files-changed-determiner')
-const createParsedYamlRetriever = require('./lib/parsed-yaml-retriever')
+const createGitHubFilesChangedDeterminer = require('./lib/github/files-changed-determiner')
+const createGitHubParsedYamlRetriever = require('./lib/github/parsed-yaml-retriever')
+const createBitbucketFilesChangedDeterminer = require('./lib/bitbucket/files-changed-determiner')
+const createBitbucketParsedYamlRetriever = require('./lib/bitbucket/parsed-yaml-retriever')
 const isValidSig = require('./lib/signature-validator')
+const GhApi = require('github4')
+const { Bitbucket } = require("bitbucket")
 
 const githubToken = process.env.GITHUB_TOKEN
+const bitbucketUsername = process.env.BITBUCKET_USERNAME
+const bitbucketPassword = process.env.BITBUCKET_PASSWORD
 const sharedKey = process.env.PLUGIN_SECRET
 
-const gh = new GhApi({ version: '3.0.0' })
-gh.authenticate({ type: 'token', token: githubToken })
+let determineFilesChanged;
+let getParsedYaml;
 
-const determineFilesChanged = createFilesChangedDeterminer(gh)
-const getParsedYaml = createParsedYamlRetriever(gh)
+if (githubToken) {
+  const gh = new GhApi({ version: '3.0.0' })
+  gh.authenticate({ type: 'token', token: githubToken })
+  determineFilesChanged = createGitHubFilesChangedDeterminer(gh)
+  getParsedYaml = createGitHubParsedYamlRetriever(gh)
+} else if (bitbucketUsername && bitbucketPassword) {
+  const bitbucket = new Bitbucket({ auth: { username: bitbucketUsername, password: bitbucketPassword } })
+  determineFilesChanged = createBitbucketFilesChangedDeterminer(bitbucket)
+  getParsedYaml = createBitbucketParsedYamlRetriever(bitbucket)
+} else {
+  throw new Error('Either GitHub or Bitbucket credentials are required')
+}
 
 const nullYaml = index => `kind: pipeline\nname: default_${index}\ntrigger:\n  event:\n    exclude: [ "*" ]`
 
