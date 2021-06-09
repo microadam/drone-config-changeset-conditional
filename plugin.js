@@ -1,6 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const GhApi = require('github4')
+const { Octokit } = require('@octokit/rest')
 const yaml = require('yaml')
 const glob = require('globule')
 const createFilesChangedDeterminer = require('./lib/files-changed-determiner')
@@ -10,8 +10,9 @@ const isValidSig = require('./lib/signature-validator')
 const githubToken = process.env.GITHUB_TOKEN
 const sharedKey = process.env.PLUGIN_SECRET
 
-const gh = new GhApi({ version: '3.0.0' })
-gh.authenticate({ type: 'token', token: githubToken })
+const gh = new Octokit({
+  auth: githubToken
+})
 
 const determineFilesChanged = createFilesChangedDeterminer(gh)
 const getParsedYaml = createParsedYamlRetriever(gh)
