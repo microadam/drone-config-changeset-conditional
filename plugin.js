@@ -46,30 +46,42 @@ app.post('/', bodyParser.json({limit: '50mb'}), async (req, res) => {
     return res.sendStatus(500)
   }
 
-  const finalYamlDocs = parsedYaml.map((py, index) => {
-    if (py.kind !== 'pipeline') return yaml.stringify(py)
-    if (py.trigger && py.trigger.changeset && py.trigger.changeset.includes) {
-      const requiredFiles = py.trigger.changeset.includes
-      const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
-      console.log('Matched files for pipeline:', matchedFiles.length, 'Allowed matches:', requiredFiles)
-      if (!matchedFiles.length) {
-        py.trigger = { event: { exclude: ['*'] } }
-        return yaml.stringify(py)
+  try {
+    const finalYamlDocs = parsedYaml.map((py, index) => {
+      if (py.kind == undefined) {
+        let error = new Error("Missing kind");
+        error.code = 404;
+        throw error;
       }
-    }
+      if (py.kind !== 'pipeline') return yaml.stringify(py)
+      if (py.trigger && py.trigger.changeset && py.trigger.changeset.includes) {
+        const requiredFiles = py.trigger.changeset.includes
+        const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
+        console.log('Matched files for pipeline:', matchedFiles.length, 'Allowed matches:', requiredFiles)
+        if (!matchedFiles.length) {
+          py.trigger = { event: { exclude: ['*'] } }
+          return yaml.stringify(py)
+        }
+      }
 
-    const trimmedSteps = py.steps.filter(s => {
-      if (!s.when || !s.when.changeset || !s.when.changeset.includes) return true
-      const requiredFiles = s.when.changeset.includes
-      const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
-      console.log('Matched files for step:', matchedFiles.length, 'Allowed matches:', requiredFiles)
-      return matchedFiles.length
+      const trimmedSteps = py.steps.filter(s => {
+        if (!s.when || !s.when.changeset || !s.when.changeset.includes) return true
+        const requiredFiles = s.when.changeset.includes
+        const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
+        console.log('Matched files for step:', matchedFiles.length, 'Allowed matches:', requiredFiles)
+        return matchedFiles.length
+      })
+
+      return trimmedSteps.length ? yaml.stringify({ ...py, steps: trimmedSteps }) : nullYaml(index)
     })
 
-    return trimmedSteps.length ? yaml.stringify({ ...py, steps: trimmedSteps }) : nullYaml(index)
-  })
+    res.json({ Data: finalYamlDocs.join('\n---\n') })
+  } catch(e) {
+    console.log(e)
+    if (e.code === 404) return res.sendStatus(204)
+    return res.sendStatus(500)
+  }
 
-  res.json({ Data: finalYamlDocs.join('\n---\n') })
 })
 
 app.listen(3000)
