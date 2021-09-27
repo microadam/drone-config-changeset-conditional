@@ -62,7 +62,7 @@ app.post('/', bodyParser.json({limit: '50mb'}), async (req, res) => {
       if (!s.when || !s.when.changeset || !s.when.changeset.includes) {
         return s;
       }
-      
+
       const requiredFiles = s.when.changeset.includes
       const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
       console.log('Matched files for step:', matchedFiles.length, 'Allowed matches:', requiredFiles)
@@ -71,7 +71,7 @@ app.post('/', bodyParser.json({limit: '50mb'}), async (req, res) => {
         // Add an impossible conditional which guarantees the step gets skipped
         s.when = {
           ...s.when,
-          event: { exclude: ['*']},
+          event: { exclude: ['*'] },
         }
       }
 
