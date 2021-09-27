@@ -59,7 +59,10 @@ app.post('/', bodyParser.json({limit: '50mb'}), async (req, res) => {
     }
 
     const transformedSteps = py.steps.map(s => {
-      if (!s.when || !s.when.changeset || !s.when.changeset.includes) return true
+      if (!s.when || !s.when.changeset || !s.when.changeset.includes) {
+        return s;
+      }
+      
       const requiredFiles = s.when.changeset.includes
       const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
       console.log('Matched files for step:', matchedFiles.length, 'Allowed matches:', requiredFiles)
