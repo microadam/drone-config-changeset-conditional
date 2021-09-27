@@ -57,15 +57,27 @@ app.post('/', bodyParser.json({limit: '50mb'}), async (req, res) => {
       }
     }
 
-    const trimmedSteps = py.steps.filter(s => {
-      if (!s.when || !s.when.changeset || !s.when.changeset.includes) return true
+    const transformedSteps = py.steps.map(s => {
+      if (!s.when || !s.when.changeset || !s.when.changeset.includes) {
+        return s;
+      }
+
       const requiredFiles = s.when.changeset.includes
       const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
       console.log('Matched files for step:', matchedFiles.length, 'Allowed matches:', requiredFiles)
-      return matchedFiles.length
+
+      if (!matchedFiles.length) {
+        // Add an impossible conditional which guarantees the step gets skipped
+        s.when = {
+          ...s.when,
+          event: { exclude: ['*'] },
+        }
+      }
+
+      return s;
     })
 
-    return trimmedSteps.length ? yaml.stringify({ ...py, steps: trimmedSteps }) : nullYaml(index)
+    return transformedSteps.length ? yaml.stringify({ ...py, steps: transformedSteps }) : nullYaml(index)
   })
 
   res.json({ Data: finalYamlDocs.join('\n---\n') })
