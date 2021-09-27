@@ -64,17 +64,15 @@ app.post('/', bodyParser.json({limit: '50mb'}), async (req, res) => {
       const matchedFiles = glob.match(requiredFiles, filesChanged, { dot: true })
       console.log('Matched files for step:', matchedFiles.length, 'Allowed matches:', requiredFiles)
 
-      if (matchedFiles.length) {
-        // Allow it through unchanged
-        return s;
-      } else {
+      if (!matchedFiles.length) {
         // Add an impossible conditional which guarantees the step gets skipped
         s.when = {
           ...s.when,
           event: { exclude: ['*']},
         }
-        return s;
       }
+
+      return s;
     })
 
     return transformedSteps.length ? yaml.stringify({ ...py, steps: transformedSteps }) : nullYaml(index)
