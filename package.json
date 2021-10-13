@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@octokit/rest": "^18.12.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "globule": "^1.2.1",
