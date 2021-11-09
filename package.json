@@ -1,6 +1,6 @@
 {
   "name": "drone-config-changeset-conditional",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "description": "",
   "main": "plugin.js",
   "scripts": {
@@ -9,11 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "express": "^4.16.4",
-    "github4": "^1.1.1",
-    "globule": "^1.2.1",
-    "http-signature": "^1.2.0",
-    "yaml": "^1.7.1"
+    "body-parser": "1.18.3",
+    "express": "4.16.4",
+    "github4": "1.1.1",
+    "globule": "1.2.1",
+    "http-signature": "1.2.0",
+    "yaml": "1.7.1"
   }
 }
