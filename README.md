@@ -59,3 +59,9 @@ See [the official docs](https://docs.drone.io/extend/config) for extra informati
 ## Pattern Matching
 
 This uses the [Glob](https://www.npmjs.com/package/glob) module under the hood, so supports all pattern matching syntaxes of this module.
+
+## Deployment
+To deploy to AWS ECR, pull down a temp mfa token for AWS Platinum, and run the following:
+1. `aws ecr get-login-password --region us-east-2 --profile mfa | docker login --username AWS --password-stdin 650007492008.dkr.ecr.us-east-2.amazonaws.com`
+2. `docker build -t 650007492008.dkr.ecr.us-east-2.amazonaws.com/drone-config-plugin-changeset-conditional:1.0.0 .`
+3. `docker image push 650007492008.dkr.ecr.us-east-2.amazonaws.com/drone-config-plugin-changeset-conditional:1.0.0`
